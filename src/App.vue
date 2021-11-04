@@ -102,6 +102,7 @@ export default {
       delimiterOptions: [
         { value: 'comma', text: 'Delimiter: comma' },
         { value: 'newline', text: 'Delimiter: newline' },
+        { value: 'pipe', text: 'Delimiter: pipe' },
         { value: 'semicolon', text: 'Delimiter: semicolon' },
         { value: 'space', text: 'Delimiter: space' }
       ],
@@ -159,6 +160,7 @@ export default {
         const delimiters = {
           'comma': ',',
           'newline': '\n',
+          'pipe': '|',
           'semicolon': ';',
           'space': ' '
         }
