@@ -7,6 +7,7 @@ import {
   ButtonPlugin,
   CardPlugin,
   FormCheckboxPlugin,
+  FormInputPlugin,
   FormSelectPlugin,
   FormTextareaPlugin,
   LayoutPlugin,
@@ -21,6 +22,7 @@ Vue.config.productionTip = true
 Vue.use(ButtonPlugin)
 Vue.use(CardPlugin)
 Vue.use(FormCheckboxPlugin)
+Vue.use(FormInputPlugin)
 Vue.use(FormSelectPlugin)
 Vue.use(FormTextareaPlugin)
 Vue.use(LayoutPlugin)

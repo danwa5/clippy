@@ -34,7 +34,10 @@
             <b-button block v-on:click="transform" variant="info" type="button">Transform</b-button>
 
             <div class="mt-4">
+              <b-form-input id="customDelimiter" v-model="customDelimiter" :formatter="formatDelimiter" placeholder="Custom Delimiter" size="sm" class="my-1"></b-form-input>
               <b-form-select id="delimiter" v-model="selectedDelimiter" :options="delimiterOptions" size="sm" class="my-1"></b-form-select>
+            </div>
+            <div class="mt-4">
               <b-form-checkbox id="removeBlanks" v-model="removeBlanks" class="py-1">Remove blanks</b-form-checkbox>
               <b-form-checkbox id="removeDuplicates" v-model="removeDuplicates" class="py-1">Remove duplicates</b-form-checkbox>
               <b-form-checkbox id="encloseInQuotes" v-model="encloseInQuotes" class="py-1">Enclose in quotes</b-form-checkbox>
@@ -98,6 +101,7 @@ export default {
       duplicatesItemCount: 0,
       duplicatesTabTitle: 'Duplicates',
       isDuplicatesDisabled: true,
+      customDelimiter: '',
       selectedDelimiter: 'comma',
       delimiterOptions: [
         { value: 'comma', text: 'Delimiter: comma' },
@@ -138,6 +142,10 @@ export default {
       return input.length == 0 ? 0 : (input.match(regex) || []).length + 1;
     },
 
+    formatDelimiter: function(e) {
+      return String(e).substring(0,2);
+    },
+
     removeBlanksFromCollection: function(collection, delimiter) {
       let items = collection.split(delimiter);
       return items.filter(item => item.trim().length > 0).join(delimiter);
@@ -165,7 +173,8 @@ export default {
           'space': ' '
         }
 
-        const delimiter = delimiters[this.selectedDelimiter];
+      var customDelimiter = this.customDelimiter.slice(0,2);
+      const delimiter = customDelimiter || delimiters[this.selectedDelimiter];
 
         // no need to replace delimiter if it hasn't changed
         var transformed = this.selectedDelimiter === 'newline' ? inputValue : inputValue.replace(/\n/g, delimiter);
