@@ -6,7 +6,7 @@
       </b-navbar>
     </div>
     <b-container fluid>
-      <b-row class="text-center pt-2">
+      <b-row class="pt-2">
         <b-col md="4" lg="4" class="p-3">
           <div class="mb-2">
             <b-button size="sm" v-on:click="copy('input')">
@@ -34,7 +34,12 @@
             <b-button block v-on:click="transform" variant="info" type="button">Transform</b-button>
 
             <div class="mt-4">
+              <strong>Delimiter</strong>
               <b-form-select id="delimiter" v-model="selectedDelimiter" :options="delimiterOptions" size="sm" class="my-1"></b-form-select>
+              <b-form-input id="customDelimiter" v-model="customDelimiter" :formatter="formatDelimiter" placeholder="Custom Delimiter" size="sm" class="my-1"></b-form-input>
+            </div>
+            <div class="mt-4">
+              <strong>Options</strong>
               <b-form-checkbox id="removeBlanks" v-model="removeBlanks" class="py-1">Remove blanks</b-form-checkbox>
               <b-form-checkbox id="removeDuplicates" v-model="removeDuplicates" class="py-1">Remove duplicates</b-form-checkbox>
               <b-form-checkbox id="encloseInQuotes" v-model="encloseInQuotes" class="py-1">Enclose in quotes</b-form-checkbox>
@@ -98,13 +103,13 @@ export default {
       duplicatesItemCount: 0,
       duplicatesTabTitle: 'Duplicates',
       isDuplicatesDisabled: true,
+      customDelimiter: '',
       selectedDelimiter: 'comma',
       delimiterOptions: [
-        { value: 'comma', text: 'Delimiter: comma' },
-        { value: 'newline', text: 'Delimiter: newline' },
-        { value: 'pipe', text: 'Delimiter: pipe' },
-        { value: 'semicolon', text: 'Delimiter: semicolon' },
-        { value: 'space', text: 'Delimiter: space' }
+        { value: 'comma', text: 'comma (default)' },
+        { value: 'newline', text: 'newline' },
+        { value: 'space', text: 'space' },
+        { value: 'tab', text: 'tab' }
       ],
       removeBlanks: true,
       removeDuplicates: true,
@@ -138,6 +143,32 @@ export default {
       return input.length == 0 ? 0 : (input.match(regex) || []).length + 1;
     },
 
+    formatDelimiter: function(e) {
+      return String(e).substring(0,2);
+    },
+
+    identifyDelimiter: function() {
+      const delimiters = {
+        'comma': ',',
+        'newline': '\n',
+        'space': ' ',
+        'tab': '\t'
+      }
+
+      var customDelimiter = this.customDelimiter.slice(0,2);
+      return customDelimiter || delimiters[this.selectedDelimiter];
+    },
+
+    identifyDuplicates: function(items) {
+      // find duplicate items. if none, default to []
+      return items.reduce((acc, val, index, items) => {
+        if (items.indexOf(val) !== index && acc.indexOf(val) < 0) {
+          acc.push(val);
+        }
+        return acc;
+      }, []);
+    },
+
     removeBlanksFromCollection: function(collection, delimiter) {
       let items = collection.split(delimiter);
       return items.filter(item => item.trim().length > 0).join(delimiter);
@@ -157,34 +188,17 @@ export default {
       let inputValue = this.input;
 
       if (inputValue !== undefined) {
-        const delimiters = {
-          'comma': ',',
-          'newline': '\n',
-          'pipe': '|',
-          'semicolon': ';',
-          'space': ' '
-        }
-
-        const delimiter = delimiters[this.selectedDelimiter];
+        const delimiter = this.identifyDelimiter();
 
         // no need to replace delimiter if it hasn't changed
-        var transformed = this.selectedDelimiter === 'newline' ? inputValue : inputValue.replace(/\n/g, delimiter);
+        var transformed = delimiter === '\n' ? inputValue : inputValue.replace(/\n/g, delimiter);
         var dupes = '';
 
         if (this.removeDuplicates === true) {
           let items = transformed.split(delimiter);
-
-          // find duplicate items. if none, default to []
-          dupes = items.reduce((acc, val, index, items) => {
-            if (items.indexOf(val) !== index && acc.indexOf(val) < 0) {
-              acc.push(val);
-            }
-            return acc;
-          }, []);
-
           const uniqueSet = new Set(items);
           transformed = [...uniqueSet].join(delimiter);
-          dupes = dupes.join(delimiter);
+          dupes = this.identifyDuplicates(items).join(delimiter);
         }
 
         if (this.removeBlanks === true) {
