@@ -5,6 +5,7 @@ WORKDIR /source
 RUN yarn install
 RUN yarn global add @vue/cli
 RUN yarn global add http-server
-RUN yarn run build
+RUN npx browserslist@latest --update-db
+RUN export NODE_OPTIONS=--openssl-legacy-provider && yarn run build
 
-CMD yarn serve --mode production
+CMD export NODE_OPTIONS=--openssl-legacy-provider && yarn serve --mode production
